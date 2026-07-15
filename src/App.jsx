@@ -233,6 +233,29 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const animatedElements = document.querySelectorAll(".motion-reveal");
+    if (!("IntersectionObserver" in window)) {
+      animatedElements.forEach((element) => element.classList.add("is-visible"));
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.18 }
+    );
+
+    animatedElements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   const startMusic = async () => {
     if (musicRef.current) return;
 
@@ -288,7 +311,7 @@ export default function App() {
         </section>
       )}
 
-      <button className="music-button" onClick={toggleMusic} aria-label="Toggle music">
+      <button className={`music-button ${musicOn ? "music-button--playing" : ""}`} onClick={toggleMusic} aria-label="Toggle music">
         {musicOn ? <Music2 size={15} /> : <VolumeX size={15} />}
         {musicOn ? "Music on" : "Music off"}
       </button>
@@ -296,7 +319,7 @@ export default function App() {
       <section className="section hero">
         <FloralCorners />
         <Petals />
-        <div className="hero__content">
+        <div className="hero__content motion-reveal">
           <p className="eyebrow">Save the date</p>
           <h2 className="names"><span>{invitation.partnerOne}</span><i>&</i><span>{invitation.partnerTwo}</span></h2>
           <p className="intro">{invitation.intro}</p>
@@ -309,55 +332,57 @@ export default function App() {
       </section>
 
       <section className="section paper" id="story">
-        <p className="eyebrow">Our celebration</p>
-        <h2>A beautiful day awaits</h2>
-        <div className="portrait-frame">
+        <p className="eyebrow motion-reveal">Our celebration</p>
+        <h2 className="motion-reveal">A beautiful day awaits</h2>
+        <div className="portrait-frame motion-reveal">
           <img className="portrait-placeholder" src="/couple.png" alt="The wedding couple" />
         </div>
-        <p className="script-text">Two hearts, one promise, a lifetime together.</p>
+        <p className="script-text motion-reveal">Two hearts, one promise, a lifetime together.</p>
       </section>
 
       <section className="section green-section">
-        <p className="eyebrow">Wedding details</p>
-        <h2>Join us in celebration</h2>
+        <p className="eyebrow motion-reveal">Wedding details</p>
+        <h2 className="motion-reveal">Join us in celebration</h2>
         <div className="details-grid">
-          <article><CalendarDays /><h3>Date</h3><p>{invitation.displayDate}</p></article>
-          <article><Clock3 /><h3>Time</h3><p>Ceremony at {invitation.ceremonyTime}<br />Reception at {invitation.receptionTime}</p></article>
-          <article><MapPin /><h3>Venue</h3><p>{invitation.venue}<br />{invitation.address}</p></article>
+          <article className="motion-reveal"><CalendarDays /><h3>Date</h3><p>{invitation.displayDate}</p></article>
+          <article className="motion-reveal"><Clock3 /><h3>Time</h3><p>Ceremony at {invitation.ceremonyTime}<br />Reception at {invitation.receptionTime}</p></article>
+          <article className="motion-reveal"><MapPin /><h3>Venue</h3><p>{invitation.venue}<br />{invitation.address}</p></article>
         </div>
-        <div className="button-row">
+        <div className="button-row motion-reveal">
           <a className="button button--light" href={invitation.mapUrl} target="_blank" rel="noreferrer"><MapPin size={16} /> View map</a>
           <button className="button button--outline" onClick={downloadCalendar}><CalendarDays size={16} /> Add to calendar</button>
         </div>
       </section>
 
       <section className="section paper schedule-section">
-        <p className="eyebrow">Order of events</p>
-        <h2>Our wedding day</h2>
+        <p className="eyebrow motion-reveal">Order of events</p>
+        <h2 className="motion-reveal">Our wedding day</h2>
         <div className="timeline">
           {invitation.schedule.map((item, index) => (
-            <article key={item.title}>
+            <article className="motion-reveal" key={item.title} style={{ "--delay": `${index * 100}ms` }}>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <div><time>{item.time}</time><h3>{item.title}</h3><p>{item.note}</p></div>
             </article>
           ))}
         </div>
-        <div className="dress-code"><strong>Dress code</strong><span>{invitation.dressCode}</span></div>
+        <div className="dress-code motion-reveal"><strong>Dress code</strong><span>{invitation.dressCode}</span></div>
       </section>
 
       <section className="section countdown-section">
-        <p className="eyebrow">Counting every moment</p>
+        <p className="eyebrow motion-reveal">Counting every moment</p>
         <h2>Until we say “I do”</h2>
-        <Countdown target={invitation.weddingDate} />
+        <div className="motion-reveal countdown-motion">
+          <Countdown target={invitation.weddingDate} />
+        </div>
       </section>
 
       <section className="section paper rsvp-section">
         <FloralCorners />
-        <p className="eyebrow">Kindly respond</p>
-        <h2>Will you join us?</h2>
-        <p className="intro">Your presence would make our celebration complete.</p>
-        <p className="deadline">{invitation.rsvpDeadline}</p>
-        <a className="button button--primary" href={`https://wa.me/${invitation.whatsappNumber}?text=${whatsappText}`} target="_blank" rel="noreferrer">
+        <p className="eyebrow motion-reveal">Kindly respond</p>
+        <h2 className="motion-reveal">Will you join us?</h2>
+        <p className="intro motion-reveal">Your presence would make our celebration complete.</p>
+        <p className="deadline motion-reveal">{invitation.rsvpDeadline}</p>
+        <a className="button button--primary motion-reveal" href={`https://wa.me/${invitation.whatsappNumber}?text=${whatsappText}`} target="_blank" rel="noreferrer">
           <MessageCircle size={17} /> RSVP on WhatsApp
         </a>
       </section>
